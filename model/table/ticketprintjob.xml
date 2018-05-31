@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Document   : printjob.xml
+   Description:
+        Estructura de la tabla printjob.
+-->
+<tabla>
+    <columna>
+        <nombre>id</nombre>
+        <tipo>serial</tipo>
+        <nulo>NO</nulo>
+        <defecto>nextval('ticketprintjob_id_seq'::regclass)</defecto>
+    </columna>
+    <columna>
+        <nombre>tipo</nombre>
+        <tipo>varchar(50)</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>texto</nombre>
+        <tipo>text</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <restriccion>
+        <nombre>printjob_pkey</nombre>
+        <consulta>PRIMARY KEY (id)</consulta>
+    </restriccion>
+</tabla>

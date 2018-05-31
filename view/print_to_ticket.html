@@ -1,0 +1,59 @@
+{include="header"}
+
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               <i class="fa fa-print" aria-hidden="true"></i>
+               Configuracion para la impresion de tickets
+            </h1>
+            <p class="help-block">Selecciona la terminal deseada para imprimir tickets, solo usara la informacion como comando de corte de papel y ancho de papel.</p>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-sm-12">
+         <form name="f_config" action="{$fsc->url()}" method="POST" class="form" role="form">
+            <input type="hidden" name="config" value="TRUE">
+            <div class="panel panel-primary">
+               <div class="panel-heading">
+                  <h3 class="panel-title">Configuracion</h3>
+               </div>
+               <div class="panel-body">
+                  <div class="row">
+                     <div class="col-sm-6">
+                        <div class="form-group">
+                           Seleciona terminal:
+                           <select class="form-control" name="print_job_terminal">
+                              {loop="$fsc->terminales"}
+                              {if="$fsc->config['print_job_terminal']==$value->id"}
+                              <option value="{$value->id}" selected="">{$value->id}</option>
+                              {else}
+                              <option value="{$value->id}">{$value->id}</option>
+                              {/if}
+                              {/loop}
+                           </select>   
+                        </div>
+                     </div>
+                     <div class="col-sm-6">
+                        <div class="form-group">
+                           Otro texto:
+                           <input class="form-control" type="text" name="print_job_text" value="{$fsc->config['print_job_text']}" autocomplete="off">
+                        </div>
+                     </div>                                      
+                  </div>
+                  <hr>                               
+               </div>
+               <div class="panel-footer text-right">
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                     <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                  </button>
+               </div>
+            </div>      
+         </form> 
+      </div>
+   </div>
+</div>
+
+{include="footer"}

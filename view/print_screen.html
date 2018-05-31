@@ -1,0 +1,14 @@
+{include="header2"}
+
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12 text-center">
+         <h1><i class="fa fa-print" aria-hidden="true"></i></h1>
+         <h4><p>{$fsc->mensaje}</p></h4>
+      </div>      
+   </div>
+</div>
+<div class="hidden">
+   <img src="http://localhost:10080?documento={$fsc->tipo_documento}" alt="remote-printer"/>
+</div>
+{include="footer2"}
