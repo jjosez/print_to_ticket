@@ -56,6 +56,10 @@ class print_to_ticket extends fbase_controller
                     $documento = (new albaran_cliente())->get($_GET['id']);                    
                     break;
 
+                case 'pedido':
+                    $documento = (new pedido_cliente())->get($_GET['id']);                    
+                    break;
+
                 default:
                     # code...
                     break;
@@ -112,7 +116,7 @@ class print_to_ticket extends fbase_controller
 
         $ticket->add_text_line(strtoupper($this->tipo_documento) . ' ' . $documento->codigo, true, true);
         $ticket->add_text_line($documento->fecha . ' ' . $documento->hora, true, true);
-        $ticket->add_line_brake();
+        $ticket->add_line_break();
 
         $ticket->add_text_line("CLIENTE: " . $documento->nombrecliente);
         $ticket->add_line_splitter('=');
@@ -131,7 +135,10 @@ class print_to_ticket extends fbase_controller
         $ticket->add_line_splitter('=');
         $ticket->add_line_label_value('IVA',$this->show_numero($totaliva));
         $ticket->add_line_label_value('TOTAL DEL DOCUMENTO:',$this->show_numero($documento->total));
-        $ticket->add_line_brake(2);
+        $ticket->add_line_break(2);
+
+        $ticket->add_text_line($this->config['print_job_text'], true, true);
+        $ticket->add_bcode_line($documento->codigo);
 
         $print_job = (new ticket_print_job())->get_print_job($this->tipo_documento);
         if (!$print_job) {
@@ -145,16 +152,17 @@ class print_to_ticket extends fbase_controller
 
     private function print_ticket_encabezado(&$ticket)
     {
-        $ticket->add_line_brake();
+        $ticket->add_line_break();
 
         $ticket->add_line_splitter('=');
         $ticket->add_text_line($this->empresa->nombrecorto, true, true);
-        $ticket->add_text_line($this->empresa->direccion, true, true);
+        $ticket->add_big_text_line($this->empresa->direccion, true, true);
 
         if ($this->empresa->telefono) {
-            $ticket->add_text_line('TEL: ' . $this->empresa->telefono, true);
+            $ticket->add_text_line('TEL: ' . $this->empresa->telefono, true, true);
         }
 
+        $ticket->add_line_break();
         $ticket->add_text_line($this->empresa->nombre, true, true);
         $ticket->add_text_line(FS_CIFNIF . ': ' . $this->empresa->cifnif, true, true);
         $ticket->add_line_splitter('=');
@@ -180,6 +188,15 @@ class print_to_ticket extends fbase_controller
                 'text' => '<i class="fa fa-print" aria-hidden="true"></i>'
                 . '<span class="hidden-xs">&nbsp; Ticket</span>',
                 'params' => '&tipo=albaran',
+            ),
+            array(
+                'name' => 'pedido_ticket_print_job',
+                'page_from' => __CLASS__,
+                'page_to' => 'ventas_pedido',
+                'type' => 'modal',
+                'text' => '<i class="fa fa-print" aria-hidden="true"></i>'
+                . '<span class="hidden-xs">&nbsp; Ticket</span>',
+                'params' => '&tipo=pedido',
             ),
         );
 

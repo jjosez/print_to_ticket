@@ -16,9 +16,9 @@ class TicketWriter
         $this->comandocorte = ($comandocorte) ? a : '27.105';
     }
 
-    public function add_text_line($text = '', $linebreake = TRUE, $center = FALSE)
+    public function add_text_line($text = '', $breake = TRUE, $center = FALSE)
     {
-        $text = substr($text, 0, $this->anchopapel-1);
+        $text = substr($text, 0, $this->anchopapel);
         if ($text != '') {
             if ($center) {
                 $this->output .= $this->text_center($text);
@@ -26,12 +26,43 @@ class TicketWriter
                 $this->output .= $text;
             }            
         } 
-        if ($linebreake) {
-            $this->output .= "\n";
+        if ($breake) {
+            $this->add_line_break();
         }                
     }
 
-    public function add_line_brake($n = 1)
+    public function add_bold_text_line($text = '', $brake = TRUE, $center = FALSE)
+    {
+        $text = substr($text, 0, $this->anchopapel);
+        $text = chr(27) . chr(69) . chr(49) . $text . chr(27) . chr(69) . chr(48);
+        if ($text != '') {
+            if ($center) {
+                $this->output .= $this->text_center($text);
+            } else {
+                $this->output .= $text;
+            }            
+        } 
+        if ($brake) {
+            $this->add_line_break();
+        }           
+    }
+
+    public function add_big_text_line($text = '', $breake = TRUE, $center = FALSE)
+    {
+        if ($text != '') {
+            if ($center) {
+                $this->output .= $this->text_center($text);
+            } else {
+                $this->output .= $text;
+            }            
+        } 
+
+        if ($breake) {
+            $this->add_line_break();
+        }                  
+    }
+
+    public function add_line_break($n = 1)
     {
         for ($i=0; $i < $n; $i++) { 
             $this->output .= "\n";
@@ -57,13 +88,27 @@ class TicketWriter
         }
     }
 
-    public function add_line_label_value($label,$value)
+    public function add_line_label_value($label, $value, $align = '')
     {
         $texto = $label;
-        $texto .= sprintf('%' . ($this->anchopapel - strlen($label)) . 's', $value);
+        $ancho = $this->anchopapel - strlen($label);
+
+        $value = substr($value, 0, $ancho);
+        $texto .= sprintf('%' . $align . $ancho . 's', $value);
 
         $this->output .= $texto;
-        $this->add_line_brake();
+        $this->add_line_break();
+    }
+
+    public function add_bcode_line($text = '')
+    {
+        $barcode = '';
+        $barcode .= chr(27) . chr(97) . chr(49); #justification n=0,48 left n=2,49 center n=3,50 right
+        $barcode .= chr(29) . chr(104) . chr(70); #barcode height in dots n=100, 1 < n < 255
+        $barcode .= chr(29) . chr(119) . chr(2); #barcode width multiplier n=1, n=2, 
+        $barcode .= chr(29) . chr(72) . chr(50); #barcode HRI position n=1,49 above n=2,50 below 
+        $barcode .= chr(29) . chr(107) . chr(4) . $text . chr(0);
+        $this->output .= $barcode;
     }
 
     public function text_center($word = '', $ancho = FALSE)
@@ -129,17 +174,16 @@ class TicketWriter
                     $this->output .= chr($a);
                 }
 
-                $this->add_line_brake();
+                $this->add_line_break();
             }
         } 
     }
 
     public function toString()
     {
-        $this->add_text_line('** Gracias por su visita **',TRUE,TRUE);
-        $this->add_line_brake(4);
+        $this->add_line_break(4);
         $this->paper_cut_line();
-
+        
         return $this->output;
     }
 }
