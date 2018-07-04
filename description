@@ -1,7 +1,9 @@
 <p>FacturaImprime en un ticket. funciona con remote_printer asi que deberas tenerlo activado para que funcione</p>
+Accesible desde:
+<br/>
 <ul>
-<li>Factura</li>
-<li>Albaran</li>
-<li>Pedido</li>
+<li>Admin &gt; Configurar ticket</li>
+<li>Factura &gt; Ticket</li>
+<li>Albaran &gt; Ticket</li>
+<li>Pedido &gt; Ticket</li>
 </ul>
-<br/>Accesible desde Admin &gt; printo_to_ticket

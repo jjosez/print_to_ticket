@@ -11,53 +11,56 @@
  * @author Juan Jose Prieto Dzul
  */
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_once 'plugins/print_to_ticket/lib/TicketWriter.php';
+require_once 'plugins/print_to_ticket/lib/TicketBuilder.php';
+require_once 'plugins/print_to_ticket/lib/TicketCustomLines.php';
 
 class print_to_ticket extends fbase_controller
 {
     public $mensaje;
-    public $tipo_documento;
+    public $documentType;
     public $terminales;
-    public $terminal;
-    public $config;
+    public $settings;
 
-
-    public $factura;
-    public $albaran;
-    public $pedido;
+    public $headerLines;
+    public $footerLines;
 
     public function __construct()
     {
-        parent::__construct(__CLASS__, 'Imprimir a ticket', 'admin');
+        parent::__construct(__CLASS__, 'Configurar ticket', 'admin');
     }
 
     protected function private_core()
     {
-        $this->share_extensions(); 
-        $this->load_config();
+        $this->shareExtensions(); 
+        $this->loadSettings();
+
+        $this->headerLines = $this->loadCustomLines('header');
+        $this->footerLines = $this->loadCustomLines('footer');
+
         $this->terminales = (new terminal_caja())->all();       
 
-        $this->tipo_documento = isset($_GET['tipo']) ?  $_GET['tipo'] : null;
-
-        if ($this->config['print_job_terminal'] != '') {
-            $this->terminal = (new terminal_caja())->get($this->config['print_job_terminal']);
+        if ($this->settings['print_job_terminal'] != '') {
+            $terminal = (new terminal_caja())->get($this->settings['print_job_terminal']);
         } else {
             $this->new_message('Es necesario seleccionar una terminal.');
-        }        
+        }
 
-        if (isset($this->tipo_documento)) {
+        //$this->documentType = isset($_GET['tipo']) ?  $_GET['tipo'] : null; 
+        $this->documentType = filter_input(INPUT_GET, 'tipo');       
+
+        if ($this->documentType) {
             $this->template = 'print_screen';
-            switch ($this->tipo_documento) {
+            switch ($this->documentType) {
                 case 'factura':
-                    $documento = (new factura_cliente())->get($_GET['id']);                    
+                    $document = (new factura_cliente())->get($_GET['id']);                    
                     break;
 
                 case 'albaran':
-                    $documento = (new albaran_cliente())->get($_GET['id']);                    
+                    $document = (new albaran_cliente())->get($_GET['id']);                    
                     break;
 
                 case 'pedido':
-                    $documento = (new pedido_cliente())->get($_GET['id']);                    
+                    $document = (new pedido_cliente())->get($_GET['id']);                    
                     break;
 
                 default:
@@ -65,110 +68,105 @@ class print_to_ticket extends fbase_controller
                     break;
             }
 
-            $this->print_ticket($documento);
+            $this->buildTicket($document, $terminal);
+            return;
         }
 
-        if (isset($_POST['config'])) {
-            $this->save_config();
+        $option = filter_input(INPUT_GET, 'opcion');
+
+        if ($option) {
+            switch ($option) {
+                case 'settings':
+                    $this->saveSettings();
+                    break;
+
+                case 'header':
+                    $this->saveCustomHeaderLines();
+                    break;
+
+                case 'footer':
+                    $this->saveCustomFooterLines();
+                    break;
+                
+                default:
+                    # code...
+                    break;
+            }
         }
     }
 
-    private function load_config()
+    private function buildTicket($document, $terminal = null)
+    {
+        $this->mensaje = 'Imprimiendo ' . strtolower($this->documentType) 
+                        . ' ' . $document->codigo;
+
+        $ticket = new TicketBuilder($terminal);
+
+        $ticket->writeCompanyBlock($this->empresa);
+        $ticket->writeHeaderBlock($this->headerLines); 
+        $ticket->writeBodyBlock($document, $this->documentType); 
+        $ticket->writeFooterBlock(
+            $this->footerLines,
+            $this->settings['print_job_text'],
+            $document->codigo
+        );      
+
+        $print_job = (new ticket_print_job())->get_print_job($this->documentType);
+        if (!$print_job) {
+            $print_job = new ticket_print_job();
+            $print_job->tipo = $this->documentType;
+        }
+
+        $print_job->texto .= $ticket->toString();
+        $print_job->save();
+    }
+
+    private function saveCustomHeaderLines()
+    {
+        $data = filter_input(INPUT_POST, 'fields', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
+
+        $customLines = new TicketCustomLines('header');
+        $customLines->saveCustomLines($data);
+    }
+
+    private function saveCustomFooterLines()
+    {
+        $data = filter_input(INPUT_POST, 'fields', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
+
+        $customLines = new TicketCustomLines('footer');
+        $customLines->saveCustomLines($data);
+    }
+
+    private function loadCustomLines($position)
+    {
+        return (new TicketCustomLines($position))->getLines();
+    }
+
+    private function loadSettings()
     {
         $fsvar = new fs_var();
-        $this->config = array(
+        $this->settings = array(
             'print_job_terminal' => '',
             'print_job_text' => '',
         );
-        $this->config = $fsvar->array_get($this->config, false);
+        $this->settings = $fsvar->array_get($this->settings, false);
     }
 
-    private function save_config()
+    private function saveSettings()
     {
         $fsvar = new fs_var();
 
-        $this->config['print_job_terminal'] = $_POST['print_job_terminal'];
-        $this->config['print_job_text'] = $_POST['print_job_text'];
+        $this->settings['print_job_terminal'] = $_POST['print_job_terminal'];
+        $this->settings['print_job_text'] = $_POST['print_job_text'];
 
-        if ($fsvar->array_save($this->config)) {
+        if ($fsvar->array_save($this->settings)) {
             $this->new_message('Datos guardados correctamente.');
         } else {
             $this->new_error_msg('Error al guardar los datos.');
         }
     }
 
-    private function print_ticket($documento, $terminal = null)
-    {
-        $this->mensaje = 'Imprimiendo ' . strtolower($this->tipo_documento) 
-                        . ' ' . $documento->codigo;
-        
-        if ($terminal) {
-            $ancho = $terminal->anchopapel;
-            $comandocorte = $terminal->comandocorte;
-        } else {
-            $ancho = 42;
-            $comandocorte = null;
-        }
-
-        $ticket = new TicketWriter($ancho, $comandocorte);
-
-        $this->print_ticket_encabezado($ticket);
-
-        $ticket->add_text_line(strtoupper($this->tipo_documento) . ' ' . $documento->codigo, true, true);
-        $ticket->add_text_line($documento->fecha . ' ' . $documento->hora, true, true);
-        $ticket->add_line_break();
-
-        $ticket->add_text_line("CLIENTE: " . $documento->nombrecliente);
-        $ticket->add_line_splitter('=');
-        $ticket->add_line_label_value('REFERENCIA','CANTIDAD');
-
-        $totaliva=0;
-        foreach ($documento->get_lineas() as $linea) {
-            $ticket->add_line_splitter();
-            $ticket->add_line_label_value($linea->referencia,$linea->cantidad);
-            $ticket->add_text_line($linea->descripcion);
-            $ticket->add_line_label_value('PVP:',$this->show_numero($linea->pvpunitario));
-            $ticket->add_line_label_value('IMPORTE:',$this->show_numero($linea->pvptotal)); 
-            $totaliva += $linea->pvptotal * $linea->iva / 100;            
-        }
-
-        $ticket->add_line_splitter('=');
-        $ticket->add_line_label_value('IVA',$this->show_numero($totaliva));
-        $ticket->add_line_label_value('TOTAL DEL DOCUMENTO:',$this->show_numero($documento->total));
-        $ticket->add_line_break(2);
-
-        $ticket->add_text_line($this->config['print_job_text'], true, true);
-        $ticket->add_bcode_line($documento->codigo);
-
-        $print_job = (new ticket_print_job())->get_print_job($this->tipo_documento);
-        if (!$print_job) {
-            $print_job = new ticket_print_job();
-            $print_job->tipo = $this->tipo_documento;
-        }
-
-        $print_job->texto = $ticket->toString();
-        $print_job->save();
-    }
-
-    private function print_ticket_encabezado(&$ticket)
-    {
-        $ticket->add_line_break();
-
-        $ticket->add_line_splitter('=');
-        $ticket->add_text_line($this->empresa->nombrecorto, true, true);
-        $ticket->add_big_text_line($this->empresa->direccion, true, true);
-
-        if ($this->empresa->telefono) {
-            $ticket->add_text_line('TEL: ' . $this->empresa->telefono, true, true);
-        }
-
-        $ticket->add_line_break();
-        $ticket->add_text_line($this->empresa->nombre, true, true);
-        $ticket->add_text_line(FS_CIFNIF . ': ' . $this->empresa->cifnif, true, true);
-        $ticket->add_line_splitter('=');
-    }
-
-    private function share_extensions()
+    private function shareExtensions()
     {
         $extensiones = array(
             array(

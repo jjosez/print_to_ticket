@@ -16,7 +16,7 @@ if (!function_exists('remote_printer')) {
                 $print_job->texto = '';
                 $print_job->save();
             } else {
-                echo 'ERROR: terminal no encontrado.';
+                echo 'ERROR: documento no valido.';
             }
         } elseif (isset($_REQUEST['terminal'])) {
             $t0 = new terminal_caja();
