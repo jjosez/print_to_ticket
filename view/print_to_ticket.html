@@ -45,7 +45,7 @@
                               <label for="print_job_terminal">Seleciona terminal:</label>
                               <select class="form-control" name="print_job_terminal">
                                  {loop="$fsc->terminales"}
-                                 {if="$fsc->configuracion['print_job_terminal']==$value->id"}
+                                 {if="$fsc->settings['print_job_terminal']==$value->id"}
                                  <option value="{$value->id}" selected="">{$value->id}</option>
                                  {else}
                                  <option value="{$value->id}">{$value->id}</option>
@@ -55,7 +55,7 @@
                            </div>
                            <div class="form-group col-sm-9">
                               <label for="print_job_text">Leyenda al final del ticket:</label>
-                              <input class="form-control" type="text" name="print_job_text" value="{$fsc->configuracion['print_job_text']}" autocomplete="off">
+                              <input class="form-control" type="text" name="print_job_text" value="{$fsc->settings['print_job_text']}" autocomplete="off">
                            </div>
                            <div class="col-sm-12">
                               <p class="help-block">Selecciona la terminal deseada para imprimir tickets, solo se usara para obtener la informacion: comando de corte de papel y ancho de papel.</p>

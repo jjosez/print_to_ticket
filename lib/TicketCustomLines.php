@@ -36,6 +36,16 @@ class TicketCustomLines
     {
         $path = 'tmp/' . FS_TMP_NAME . 'ticket/template/';
 
+        if (!file_exists($path . $this->position . '.json')) {
+            if (!file_exists($path)) {
+                @mkdir($path, 0777, true);
+            }
+
+            file_put_contents($path . $this->position . '.json', '');
+
+            return array();
+        }
+
         $data = file_get_contents($path . $this->position . '.json');
 
         if ($data === null) {
