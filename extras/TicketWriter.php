@@ -31,7 +31,7 @@ trait TicketWriter
             }            
         } 
         if ($brake) {
-            $this->addBreakLine();
+            $this->addLineBreak();
         }           
     }
 
@@ -49,7 +49,7 @@ trait TicketWriter
         }                
     }
 
-    public function addBreakLine($n = 1)
+    public function addLineBreak($n = 1)
     {
         for ($i=0; $i < $n; $i++) { 
             $this->ticket .= "\n";
@@ -84,7 +84,7 @@ trait TicketWriter
         $texto .= sprintf('%' . $align . $ancho . 's', $value);
 
         $this->ticket .= $texto;
-        $this->addBreakLine();
+        $this->addLineBreak();
     }
 
     public function addBarcode($text = '')
@@ -170,7 +170,7 @@ trait TicketWriter
                     $this->ticket .= chr($a);
                 }
 
-                $this->addBreakLine();
+                $this->addLineBreak();
             }
         } 
     }

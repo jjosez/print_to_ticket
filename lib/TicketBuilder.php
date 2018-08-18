@@ -31,7 +31,7 @@ class TicketBuilder
 
     public function writeCompanyBlock($empresa)
     {
-        $this->addBreakLine();
+        $this->addLineBreak();
 
         $this->addSplitter();
         $this->addText($empresa->nombrecorto, true, true);
@@ -41,7 +41,7 @@ class TicketBuilder
             $this->addText('TEL: ' . $empresa->telefono, true, true);
         }
 
-        $this->addBreakLine();
+        $this->addLineBreak();
         $this->addText($empresa->nombre, true, true);
         $this->addText(FS_CIFNIF . ': ' . $empresa->cifnif, true, true);
         $this->addSplitter('=');
@@ -53,7 +53,7 @@ class TicketBuilder
             $this->addText($line, true, true);
         }
 
-        $this->addBreakLine();
+        $this->addLineBreak();
     }
 
 
@@ -88,7 +88,7 @@ class TicketBuilder
 
     public function writeFooterBlock($footerLines, $leyenda, $codigo)
     {
-        $this->addBreakLine(2);
+        $this->addLineBreak(2);
 
         foreach ($footerLines as $line) {
             $this->addText($line, true, true);
@@ -100,7 +100,7 @@ class TicketBuilder
 
     public function toString()
     {
-        $this->addBreakLine(4);
+        $this->addLineBreak(4);
         $this->paperCut();
         
         return $this->ticket;
