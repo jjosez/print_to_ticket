@@ -8,13 +8,19 @@ class TicketBuilder
 {
     use TicketWriter;
 
-    private $ticket;
-    private $anchoPapel;
-    private $sinComandos;
+    protected $ticket;
+    protected $anchoPapel;
+    protected $sinComandos;
 
-    private $document;
-    private $documentType;
-    private $empresa;
+    protected $document;
+    protected $documentType;
+    protected $empresa;
+
+    protected $headerLines;
+    protected $footerLines;
+    protected $footerText;
+
+    protected $openBox;
 
     public function __construct($terminal = null, $comandos = false) 
     {
@@ -22,14 +28,42 @@ class TicketBuilder
 
         $this->anchoPapel = ($terminal->anchopapel) ? $terminal->anchopapel : '45';        
         $this->comandoCorte = ($terminal->comandocorte) ? $terminal->comandocorte : '27.105';
+        $this->comandoApertura = ($terminal->comandoapertura) ? $terminal->comandoapertura : '27.112.48';
         $this->sinComandos = $comandos;
-
-        //$this->writeTicketHeader($empresa);
-        //$this->writeTicketBody($document, $documentType);
-        //$this->writeTicketFooter($document, $leyenda);
+        $this->openBox = false;
     }
 
-    public function writeCompanyBlock($empresa)
+    public function setEmpresa($empresa)
+    {
+        $this->empresa = $empresa;
+    }
+
+    public function setDocumento($document, $documentType)
+    {
+        $this->document = $document;
+        $this->documentType = $documentType;
+    }
+
+    public function setCostumHeaderLines($headerLines)
+    {
+        foreach ($headerLines as $line) {
+            $this->headerLines[] = $line->texto;
+        }
+    }
+
+    public function setCostumFooterLines($footerLines)
+    {
+        foreach ($footerLines as $line) {
+            $this->footerLines[] = $line->texto;
+        }
+    }
+
+    public function setFooterText($footerText)
+    {
+        $this->footerText = $footerText;
+    }
+
+    protected function writeCompanyBlock($empresa)
     {
         $this->addLineBreak();
 
@@ -47,18 +81,18 @@ class TicketBuilder
         $this->addSplitter('=');
     }
 
-    public function writeHeaderBlock($headerLines)
+    protected function writeHeaderBlock($headerLines)
     {
-        foreach ($headerLines as $line) {
-            $this->addText($line, true, true);
+        if ($headerLines) {
+            foreach ($headerLines as $line) {
+                $this->addText($line, true, true);
+            }
         }
-
+        
         $this->addLineBreak();
     }
 
-
-
-    public function writeBodyBlock($document, $documentType)
+    protected function writeBodyBlock($document, $documentType)
     {
         $text = strtoupper($documentType) . ' ' . $document->codigo;
         $this->addText($text, true, true);
@@ -83,23 +117,31 @@ class TicketBuilder
 
         $this->addSplitter('=');
         $this->addLabelValue('IVA',$this->priceFormat($totaliva));
-        $this->addLabelValue('TOTAL DEL DOCUMENT:',$this->priceFormat($document->total));
+        $this->addLabelValue('TOTAL DEL DOCUMENTO:',$this->priceFormat($document->total));
     }
 
-    public function writeFooterBlock($footerLines, $leyenda, $codigo)
+    protected function writeFooterBlock($footerLines, $leyenda, $codigo)
     {
         $this->addLineBreak(2);
 
-        foreach ($footerLines as $line) {
-            $this->addText($line, true, true);
+        if ($footerLines) {
+            foreach ($footerLines as $line) {
+                $this->addText($line, true, true);
+            }
         }
 
         $this->addText($leyenda, true, true);
         $this->addBarcode($codigo);
     }
 
-    public function toString()
+    public function toString() : string
     {
+        $this->openBox();
+        $this->writeCompanyBlock($this->empresa);
+        $this->writeHeaderBlock($this->headerLines); 
+        $this->writeBodyBlock($this->document, $this->documentType); 
+        $this->writeFooterBlock($this->footerLines, $this->footerText, $this->document->codigo);      
+
         $this->addLineBreak(4);
         $this->paperCut();
         

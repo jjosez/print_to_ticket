@@ -2,27 +2,35 @@
 
 /*
  * @author Juan Jose Prieto Dzul     juanjoseprieto88@gmail.com
- * @copyright 2016, XXXX. All Rights Reserved.
+ * @copyright 2017, 2018. All Rights Reserved.
  */
 
 /**
  * Description of printo_to_ticket
+ * 
+ * Plugin que permite imprimir directamente a una impresora de tickets albaran, factura, pedido, servicio
+ * utilizando la aplicacion de remote_printer.
  *
  * @author Juan Jose Prieto Dzul
  */
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_once 'plugins/print_to_ticket/lib/TicketBuilder.php';
+
 require_once 'plugins/print_to_ticket/lib/TicketCustomLines.php';
+require_once 'plugins/print_to_ticket/lib/TicketBuilderAlbaran.php';
+require_once 'plugins/print_to_ticket/lib/TicketBuilderFactura.php';
+require_once 'plugins/print_to_ticket/lib/TicketBuilderPedido.php';
+require_once 'plugins/print_to_ticket/lib/TicketBuilderServicio.php';
 
 class print_to_ticket extends fbase_controller
 {
     public $mensaje;
-    public $documentType;
     public $terminales;
     public $settings;
 
     public $headerLines;
     public $footerLines;
+
+    public $documentType;
 
     public function __construct()
     {
@@ -34,23 +42,25 @@ class print_to_ticket extends fbase_controller
         $this->shareExtensions(); 
         $this->loadSettings();
 
-        $this->headerLines = $this->loadCustomLines('header');
-        $this->footerLines = $this->loadCustomLines('footer');
+        $this->headerLines = $this->loadCustomLines('general', 'header');
+        $this->footerLines = $this->loadCustomLines('general', 'footer');
 
         $this->terminales = (new terminal_caja())->all();       
 
         if ($this->settings['print_job_terminal'] != '') {
             $terminal = (new terminal_caja())->get($this->settings['print_job_terminal']);
         } else {
-            $this->new_message('Es necesario seleccionar una terminal.');
+            $this->new_advice('Es necesario seleccionar una terminal.');
+            return;
         }
 
-        //$this->documentType = isset($_GET['tipo']) ?  $_GET['tipo'] : null; 
-        $this->documentType = filter_input(INPUT_GET, 'tipo');       
+        // $this->documentType = isset($_GET['tipo']) ?  $_GET['tipo'] : null; 
+        $this->documentType = filter_input(INPUT_GET, 'tipo'); 
+        $documentType = $this->documentType;      
 
-        if ($this->documentType) {
+        if ($documentType) {
             $this->template = 'print_screen';
-            switch ($this->documentType) {
+            switch ($documentType) {
                 case 'factura':
                     $document = (new factura_cliente())->get($_GET['id']);                    
                     break;
@@ -63,29 +73,36 @@ class print_to_ticket extends fbase_controller
                     $document = (new pedido_cliente())->get($_GET['id']);                    
                     break;
 
+                case 'servicio':
+                    $document = (new servicio_cliente())->get($_GET['id']);                    
+                    break;
+
                 default:
                     # code...
                     break;
             }
 
-            $this->buildTicket($document, $terminal);
+            $this->buildTicket($document, $documentType, $terminal);
             return;
         }
 
-        $option = filter_input(INPUT_GET, 'opcion');
+        $documentType = filter_input(INPUT_POST, 'opcion', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE);
+        $position = filter_input(INPUT_POST, 'posicion', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE);
 
-        if ($option) {
-            switch ($option) {
-                case 'settings':
-                    $this->saveSettings();
-                    break;
+        if ($documentType) {
+            if ($documentType == 'general' && !$position) {
+                $this->saveSettings();                
+            }
 
+            switch ($position) {
                 case 'header':
-                    $this->saveCustomHeaderLines();
+                    $this->saveCustomLines($documentType, $position);
+                    $this->headerLines = $this->loadCustomLines($documentType, $position);
                     break;
 
                 case 'footer':
-                    $this->saveCustomFooterLines();
+                    $this->saveCustomLines($documentType, $position);
+                    $this->footerLines = $this->loadCustomLines($documentType, $position);
                     break;
                 
                 default:
@@ -95,51 +112,63 @@ class print_to_ticket extends fbase_controller
         }
     }
 
-    private function buildTicket($document, $terminal = null)
+    private function buildTicket($document, $documentType,$terminal = null)
     {
-        $this->mensaje = 'Imprimiendo ' . strtolower($this->documentType) 
+        $this->mensaje = 'Imprimiendo ' . strtolower($documentType) 
                         . ' ' . $document->codigo;
 
-        $ticket = new TicketBuilder($terminal);
+        switch ($documentType) {
+            case 'factura':
+                $ticket = new TicketBuilderFactura($terminal);
+                break;
 
-        $ticket->writeCompanyBlock($this->empresa);
-        $ticket->writeHeaderBlock($this->headerLines); 
-        $ticket->writeBodyBlock($document, $this->documentType); 
-        $ticket->writeFooterBlock(
-            $this->footerLines,
-            $this->settings['print_job_text'],
-            $document->codigo
-        );      
+            case 'albaran':
+                $ticket = new TicketBuilderAlbaran($terminal);
+                break;
 
-        $print_job = (new ticket_print_job())->get_print_job($this->documentType);
+            case 'servicio':
+                $ticket = new TicketBuilderServicio($terminal);
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+
+        $ticket->setEmpresa($this->empresa);
+        $ticket->setDocumento($document, $documentType);
+        $ticket->setCostumHeaderLines($this->headerLines); 
+        $ticket->setCostumFooterLines($this->footerLines);      
+        $ticket->setFooterText($this->settings['print_job_text']);
+
+        $print_job = (new ticket_print_job())->get_print_job($documentType);
         if (!$print_job) {
             $print_job = new ticket_print_job();
-            $print_job->tipo = $this->documentType;
+            $print_job->tipo = $documentType;
         }
 
         $print_job->texto .= $ticket->toString();
         $print_job->save();
     }
 
-    private function saveCustomHeaderLines()
+    private function saveCustomLines($documentType, $position)
     {
-        $data = filter_input(INPUT_POST, 'fields', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
+        $texto = filter_input(INPUT_POST, 'texto', FILTER_DEFAULT);
+        $action = filter_input(INPUT_POST, 'accion',FILTER_DEFAULT);
+        $id = filter_input(INPUT_POST, 'id',FILTER_DEFAULT, FILTER_NULL_ON_FAILURE);
 
-        $customLines = new TicketCustomLines('header');
-        $customLines->saveCustomLines($data);
+        $customLines = new TicketCustomLines($documentType, $position);
+
+        if ($action == 'borrar') {
+            $customLines->deleteCustomLine($id);
+        } else {
+            $customLines->saveCustomLine($texto, $id);
+        }
     }
 
-    private function saveCustomFooterLines()
+    private function loadCustomLines($documentType, $position)
     {
-        $data = filter_input(INPUT_POST, 'fields', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
-
-        $customLines = new TicketCustomLines('footer');
-        $customLines->saveCustomLines($data);
-    }
-
-    private function loadCustomLines($position)
-    {
-        return (new TicketCustomLines($position))->getLines();
+        return (new TicketCustomLines($documentType, $position))->getLines();
     }
 
     private function loadSettings()
@@ -195,6 +224,24 @@ class print_to_ticket extends fbase_controller
                 'text' => '<i class="fa fa-print" aria-hidden="true"></i>'
                 . '<span class="hidden-xs">&nbsp; Ticket</span>',
                 'params' => '&tipo=pedido',
+            ),
+            array(
+                'name' => 'presupuesto_ticket_print_job',
+                'page_from' => __CLASS__,
+                'page_to' => 'ventas_presupuesto',
+                'type' => 'modal',
+                'text' => '<i class="fa fa-print" aria-hidden="true"></i>'
+                . '<span class="hidden-xs">&nbsp; Ticket</span>',
+                'params' => '&tipo=presupuesto',
+            ),
+            array(
+                'name' => 'servicio_ticket_print_job',
+                'page_from' => __CLASS__,
+                'page_to' => 'ventas_servicio',
+                'type' => 'modal',
+                'text' => '<i class="fa fa-print" aria-hidden="true"></i>'
+                . '<span class="hidden-xs">&nbsp; Ticket</span>',
+                'params' => '&tipo=servicio',
             ),
         );
 

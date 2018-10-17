@@ -1,0 +1,155 @@
+<div class="row">
+  <div class="col-sm-12">
+     <ul id="tabs_print_to_ticket" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active">
+           <a href="#general_settings_tab" aria-controls="settings" role="tab" data-toggle="tab">
+              <span class="fa fa-gears"></span>
+              <span class="hidden-xs">&nbsp; Configuracion</span>
+           </a>
+        </li>
+        <li role="presentation">
+           <a href="#general_header_tab" aria-controls="template" role="tab" data-toggle="tab">
+              <span class="glyphicon glyphicon-align-justify"></span>
+              <span class="hidden-xs">&nbsp; Encabezado</span>
+           </a>
+        </li>
+        <li role="presentation">
+           <a href="#general_footer_tab" aria-controls="template" role="tab" data-toggle="tab">
+              <span class="glyphicon glyphicon-align-justify"></span>
+              <span class="hidden-xs">&nbsp; Pie</span>
+           </a>
+        </li>
+     </ul><!-- End tabs list-->
+     <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="general_settings_tab">
+           <div class="row">
+              <br>
+              <div class="col-sm-12">
+                <form name="f_general_settings" action="{$fsc->url()}" method="POST" class="form" role="form">
+                  <input type="hidden" name="opcion" value="general">
+                    <div class="row">
+                       <div class="form-group col-sm-3">
+                          <label for="print_job_terminal">Seleciona terminal:</label>
+                          <select class="form-control" name="print_job_terminal">
+                             {loop="$fsc->terminales"}
+                             {if="$fsc->settings['print_job_terminal']==$value->id"}
+                             <option value="{$value->id}" selected="">{$value->id}</option>
+                             {else}
+                             <option value="{$value->id}">{$value->id}</option>
+                             {/if}
+                             {/loop}
+                          </select>
+                       </div>
+                       <div class="form-group col-sm-9">
+                          <label for="print_job_text">Leyenda al final del ticket:</label>
+                          <input class="form-control" type="text" name="print_job_text" value="{$fsc->settings['print_job_text']}" autocomplete="off">
+                       </div>
+                       <div class="col-sm-12">
+                          <p class="help-block">Selecciona la terminal deseada para imprimir tickets, solo se usara para obtener la informacion: comando de corte de papel y ancho de papel.</p>
+                          <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                             <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                          </button>
+                       </div>
+                    </div>
+                 </form>                        
+              </div>
+           </div>
+        </div><!-- End tab settings -->
+        <div role="tabpanel" class="tab-pane" id="general_header_tab">
+           <div class="row">
+              <div class="col-sm-12">
+                    <div class="ticket_header"> 
+                      <br>
+                      {loop="$fsc->headerLines"}
+                      <form action="{$fsc->url()}" method="POST" autocomplete="off">
+                        <input type="hidden" name="opcion" value="general">
+                        <input type="hidden" name="posicion" value="header">
+                        <input type="hidden" name="id" value="{$value->id}">
+
+                        <div class="row">
+                          <div class="form-group col-sm-10">
+                            <input class="form-control" name="texto" type="text" value="{$value->texto}"/>
+                          </div>
+                          <div class="col-sm-2">
+                            <button class="btn btn-primary" type="submit" name="accion" value="guardar">
+                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                            </button>
+                            <button class="btn btn-danger" type="submit" name="accion" value="borrar">
+                              <span class="glyphicon glyphicon-trash"></span>
+                            </button>
+                          </div>
+                        </div>                         
+                      </form>
+                      <br>
+                      {/loop}   
+                      <form action="{$fsc->url()}" method="POST" autocomplete="off">
+                        <input type="hidden" name="opcion" value="general">
+                        <input type="hidden" name="posicion" value="header">
+
+                        <div class="row">
+                          <div class="form-group col-sm-10">
+                            <input class="form-control" name="texto" type="text" placeholder="Puedes escribir aqui." />                                                                
+                          </div>
+                          <div class="col-sm-2">
+                            <button class="btn btn-success" type="submit" name="accion" value="guardar">
+                              <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                          </div>
+                        </div>                             
+                      </form>                                               
+                    </div>
+              </div>
+            </div>
+        </div><!-- End tab header -->
+        <div role="tabpanel" class="tab-pane" id="general_footer_tab">
+           <div class="row">
+              <div class="col-sm-12">
+                <br>
+                <div class="ticket_footer">
+                  {loop="$fsc->footerLines"}
+                  <form action="{$fsc->url()}" method="POST" autocomplete="off">
+                    <input type="hidden" name="opcion" value="general">
+                    <input type="hidden" name="posicion" value="footer">
+                    <input type="hidden" name="id" value="{$value->id}">
+                    
+                    <div class="row">
+                      <div class="form-group col-sm-10">
+                        <input class="form-control" name="texto" type="text" value="{$value->texto}"/>
+                      </div>
+                      <div class="col-sm-2">
+                        <button class="btn btn-primary" type="submit" name="accion" value="guardar">
+                          <span class="glyphicon glyphicon-floppy-disk"></span>
+                        </button>
+                        <button class="btn btn-danger" type="submit" name="accion" value="borrar">
+                          <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                      </div>
+                    </div>                         
+                  </form>
+                  <br>
+                  {/loop}   
+                  <form action="{$fsc->url()}" method="POST" autocomplete="off">
+                    <input type="hidden" name="opcion" value="general">
+                    <input type="hidden" name="posicion" value="footer">
+
+                    <div class="row">
+                      <div class="form-group col-sm-10">
+                        <input class="form-control" name="texto" type="text" placeholder="Puedes escribir aqui." />                                                                
+                      </div>
+                      <div class="col-sm-2">
+                        <button class="btn btn-primary" type="submit" name="accion" value="guardar">
+                          <span class="glyphicon glyphicon-floppy-disk"></span>
+                        </button>
+                        <button class="btn btn-success" type="submit" name="accion" value="guardar">
+                          <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                      </div>
+                    </div>                             
+                  </form>  
+                </div>
+              </div>
+           </div><!-- End tab row -->
+        </div><!-- End tab footer -->
+     </div><!-- End tabs content -->
+  </div>
+</div>

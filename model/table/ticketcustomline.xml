@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Document   : ticktcustomline.xml
+   Description:
+        Estructura de la tabla ticketcustomline.
+-->
+<tabla>
+    <columna>
+        <nombre>id</nombre>
+        <tipo>serial</tipo>
+        <nulo>NO</nulo>
+        <defecto>nextval('ticketcustomline_id_seq'::regclass)</defecto>
+    </columna>
+    <columna>
+        <nombre>posicion</nombre>
+        <tipo>varchar(20)</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>documento</nombre>
+        <tipo>varchar(50)</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>texto</nombre>
+        <tipo>varchar(200)</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <restriccion>
+        <nombre>ticketcustomline_pkey</nombre>
+        <consulta>PRIMARY KEY (id)</consulta>
+    </restriccion>
+</tabla>

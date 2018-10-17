@@ -1,5 +1,4 @@
 {include="header"}
-
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
@@ -12,143 +11,26 @@
       </div>
    </div>
    <div class="row">
-      <div class="col-sm-12">
-         <ul id="tabs_print_to_ticket" class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active">
-               <a href="#settings_tab" aria-controls="settings" role="tab" data-toggle="tab">
-                  <span class="fa fa-gears"></span>
-                  <span class="hidden-xs">&nbsp; Configuración</span>
-               </a>
+      <div class="col-sm-3 col-lg-2">
+         <ul class="nav nav-pills nav-stacked">
+            <li class="active"><a data-toggle="pill" href="#sec1">
+               <span class="fa fa-gears"></span>General</a>
             </li>
-            <li role="presentation">
-               <a href="#header_tab" aria-controls="template" role="tab" data-toggle="tab">
-                  <span class="glyphicon glyphicon-align-justify"></span>
-                  <span class="hidden-xs">&nbsp; Encabezado</span>
-               </a>
-            </li>
-            <li role="presentation">
-               <a href="#footer_tab" aria-controls="template" role="tab" data-toggle="tab">
-                  <span class="glyphicon glyphicon-align-justify"></span>
-                  <span class="hidden-xs">&nbsp; Pie</span>
-               </a>
-            </li>
-         </ul><!-- End tabs list-->
-         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="settings_tab">
-               <div class="row">
-                  <br>
-                  <div class="col-sm-12">
-                     <form name="f_settings" action="{$fsc->url()}&opcion=settings" method="POST" class="form" role="form">
-                     <input type="hidden" name="settings" value="true">
-                        <div class="row">
-                           <div class="form-group col-sm-3">
-                              <label for="print_job_terminal">Seleciona terminal:</label>
-                              <select class="form-control" name="print_job_terminal">
-                                 {loop="$fsc->terminales"}
-                                 {if="$fsc->settings['print_job_terminal']==$value->id"}
-                                 <option value="{$value->id}" selected="">{$value->id}</option>
-                                 {else}
-                                 <option value="{$value->id}">{$value->id}</option>
-                                 {/if}
-                                 {/loop}
-                              </select>
-                           </div>
-                           <div class="form-group col-sm-9">
-                              <label for="print_job_text">Leyenda al final del ticket:</label>
-                              <input class="form-control" type="text" name="print_job_text" value="{$fsc->settings['print_job_text']}" autocomplete="off">
-                           </div>
-                           <div class="col-sm-12">
-                              <p class="help-block">Selecciona la terminal deseada para imprimir tickets, solo se usara para obtener la informacion: comando de corte de papel y ancho de papel.</p>
-                              <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                                 <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
-                              </button>
-                           </div>
-                        </div>
-                     </form>                        
+         </ul>
+      </div>
+      <div class="col-sm-9 col-lg-10"> 
+         <div class="tab-content">          
+            <div id="sec1" class="tab-pane active">         
+               <div class="panel panel-primary">
+                  <div class="panel-heading">
+                     <h3 class="panel-title">Configuracion para impresion de tickets</h3>
                   </div>
-               </div>
-            </div><!-- End tab settings -->
-            <div role="tabpanel" class="tab-pane" id="header_tab">
-               <div class="row">
-                  <div class="col-sm-12">
-                     <div class="control-group" id="fields">
-                        <br>
-                        <div class="ticket_header"> 
-                           <form name="f_ticket_header" action="{$fsc->url()}&opcion=header" method="POST" role="form" autocomplete="off">
-                              <input type="hidden" name="header" value="true">
-                              {loop="$fsc->headerLines"}
-                              <div class="entry">
-                                <div class="input-group">
-                                    <input class="form-control" name="fields[]" type="text" value="{$value}" />
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-danger btn-remove" type="button">
-                                            <span class="glyphicon glyphicon-minus"></span>
-                                        </button>
-                                    </span>                                    
-                                </div>
-                                <br>
-                              </div>
-                              {/loop}       
-                              <div class="entry">
-                                <div class="input-group">
-                                    <input class="form-control" name="fields[]" type="text" placeholder="Puedes escribir aqui." />
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-success btn-header" type="button">
-                                            <span class="glyphicon glyphicon-plus"></span>
-                                        </button>
-                                    </span>                                    
-                                </div>
-                                <br>
-                              </div>                         
-                           </form>
-                           <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;document.f_ticket_header.submit();">
-                                 <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
-                           </button>                          
-                        </div>
-                     </div>
+                  <div class="panel-body">
+                     {include="tab/tab_general"}
                   </div>
-               </div>
-            </div><!-- End tab header -->
-            <div role="tabpanel" class="tab-pane" id="footer_tab">
-               <div class="row">
-                  <div class="col-sm-12">
-                     <br>
-                     <div class="ticket_footer">
-                        <form name="f_ticket_footer" action="{$fsc->url()}&opcion=footer" method="POST" role="form" autocomplete="off">
-                           <input type="hidden" name="footer" value="true">
-                            {loop="$fsc->footerLines"}
-                              <div class="entry">
-                                <div class="input-group">
-                                    <input class="form-control" name="fields[]" type="text" value="{$value}" />
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-danger btn-remove" type="button">
-                                            <span class="glyphicon glyphicon-minus"></span>
-                                        </button>
-                                    </span>                                    
-                                </div>
-                                <br>
-                              </div>
-                            {/loop}      
-                           <div class="entry">
-                              <div class="input-group">
-                                 <input class="form-control" name="fields[]" type="text" placeholder="Puedes escribir aqui." />
-                                 <span class="input-group-btn">
-                                    <button class="btn btn-success btn-footer" type="button">
-                                    <span class="glyphicon glyphicon-plus"></span>
-                                    </button>
-                                 </span>
-                              </div>
-                              <br>
-                           </div>
-                        </form>
-                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;document.f_ticket_footer.submit();">
-                              <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
-                        </button>  
-                     </div>
-                  </div>
-               </div><!-- End tab row -->
-            </div><!-- End tab footer -->
-         </div><!-- End tabs content -->
+               </div>              
+            </div>              
+         </div>        
       </div>
    </div>
 </div>

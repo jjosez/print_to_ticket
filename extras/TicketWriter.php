@@ -49,6 +49,15 @@ trait TicketWriter
         }                
     }
 
+    public function addMultiLineText($text)
+    {
+        $lines = explode("\n", $text);
+
+        foreach ($lines as $line) {
+            $this->addBigText($line);
+        }
+    }
+
     public function addLineBreak($n = 1)
     {
         for ($i=0; $i < $n; $i++) { 
@@ -152,7 +161,7 @@ trait TicketWriter
         return $result;
     }
 
-    private function priceFormat($val, $decimales = 2, $moneda = false)
+    protected function priceFormat($val, $decimales = 2, $moneda = false)
     {
         $val = sqrt($val ** 2);
         if ($moneda) {
@@ -171,6 +180,22 @@ trait TicketWriter
                 }
 
                 $this->addLineBreak();
+            }
+        } 
+    }
+
+    public function openBox()
+    {
+        if (!$this->sinComandos) {
+            if ($this->openBox) {
+                $aux = explode('.', $this->comandoApertura);
+                if ($aux) {
+                    foreach ($aux as $a) {
+                        $this->ticket .= chr($a);
+                    }
+
+                    $this->ticket .= "\n";
+                }
             }
         } 
     }
