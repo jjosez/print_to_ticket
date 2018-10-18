@@ -45,7 +45,7 @@ if (!function_exists('fs_print_job')) {
     /**
      * Agrega un nuevo trabajo a la cola de impresion por tipo de documento.
      */
-    function fs_print_job($documentType, $documentId, $terminal, $empresa = false, $openBox = false)
+    function fs_print_job($documentType, $documentId, $terminal, $empresa = false, $open = false)
     {  
 
         if ($documentType) {
@@ -103,7 +103,6 @@ if (!function_exists('fs_print_job')) {
             //$terminal = (new terminal_caja())->get($fsvar->simple_get('print_job_terminal'));
             $footerText = $fsvar->simple_get('print_job_text');
 
-            $ticket->openBox = $openBox;
             $ticket->setEmpresa($empresa);
             $ticket->setDocumento($document, $documentType);
             $ticket->setCostumHeaderLines($headerLines); 
@@ -119,7 +118,7 @@ if (!function_exists('fs_print_job')) {
             $print_job->texto .= $ticket->toString();
             $print_job->save();
 
-            return $ticket->toString();
+            return $ticket->toString($open);
         }
     }
 }

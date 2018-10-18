@@ -20,8 +20,6 @@ class TicketBuilder
     protected $footerLines;
     protected $footerText;
 
-    protected $openBox;
-
     public function __construct($terminal = null, $comandos = false) 
     {
         $this->ticket = '';
@@ -134,9 +132,12 @@ class TicketBuilder
         $this->addBarcode($codigo);
     }
 
-    public function toString() : string
+    public function toString($open = false) : string
     {
-        $this->openBox();
+        if ($open) {
+            $this->openBox();
+        }
+        
         $this->writeCompanyBlock($this->empresa);
         $this->writeHeaderBlock($this->headerLines); 
         $this->writeBodyBlock($this->document, $this->documentType); 

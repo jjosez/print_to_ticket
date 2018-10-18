@@ -186,17 +186,15 @@ trait TicketWriter
 
     public function openBox()
     {
-        if (!$this->sinComandos) {
-            if ($this->openBox) {
-                $aux = explode('.', $this->comandoApertura);
-                if ($aux) {
-                    foreach ($aux as $a) {
-                        $this->ticket .= chr($a);
-                    }
-
-                    $this->ticket .= "\n";
+        if (!$this->sinComandos) {            
+            $aux = explode('.', $this->comandoApertura);
+            if ($aux) {
+                foreach ($aux as $a) {
+                    $this->ticket .= chr($a);
                 }
-            }
+
+                $this->ticket .= "\n";
+            }            
         } 
     }
 }
