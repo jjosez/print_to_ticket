@@ -60,7 +60,8 @@
               <div class="col-sm-12">
                     <div class="ticket_header"> 
                       <br>
-                      {loop="$fsc->headerLines"}
+                      <!--{$lines=$fsc->loadCustomLines('general','header')}-->
+                      {loop="$lines"}
                       <form action="{$fsc->url()}" method="POST" autocomplete="off">
                         <input type="hidden" name="opcion" value="general">
                         <input type="hidden" name="posicion" value="header">
@@ -106,7 +107,8 @@
               <div class="col-sm-12">
                 <br>
                 <div class="ticket_footer">
-                  {loop="$fsc->footerLines"}
+                  <!--{$lines=$fsc->loadCustomLines('general','footer')}-->
+                  {loop="$lines"}
                   <form action="{$fsc->url()}" method="POST" autocomplete="off">
                     <input type="hidden" name="opcion" value="general">
                     <input type="hidden" name="posicion" value="footer">

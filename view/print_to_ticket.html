@@ -34,49 +34,4 @@
       </div>
    </div>
 </div>
-<script type="text/javascript">
-$(function() {
-    $(document).on('click', '.btn-header', function(e)
-    {
-        e.preventDefault();
-
-        var controlForm = $('.ticket_header form:first'),
-            currentEntry = $(this).parents('.entry:first'),
-            newEntry = $(currentEntry.clone()).appendTo(controlForm);
-
-        newEntry.find('input').val('');
-        controlForm.find('.entry:not(:last) .btn-header')
-            .removeClass('btn-header').addClass('btn-remove')
-            .removeClass('btn-success').addClass('btn-danger')
-            .html('<span class="glyphicon glyphicon-minus"></span>');
-    }).on('click', '.btn-remove', function(e)
-    {
-      $(this).parents('.entry:first').remove();
-
-      e.preventDefault();
-      return false;
-   });
-
-    $(document).on('click', '.btn-footer', function(e)
-    {
-        e.preventDefault();
-
-        var controlForm = $('.ticket_footer form:first'),
-            currentEntry = $(this).parents('.entry:first'),
-            newEntry = $(currentEntry.clone()).appendTo(controlForm);
-
-        newEntry.find('input').val('');
-        controlForm.find('.entry:not(:last) .btn-footer')
-            .removeClass('btn-footer').addClass('btn-remove')
-            .removeClass('btn-success').addClass('btn-danger')
-            .html('<span class="glyphicon glyphicon-minus"></span>');
-    }).on('click', '.btn-remove', function(e)
-    {
-      $(this).parents('.entry:first').remove();
-
-      e.preventDefault();
-      return false;
-   });
-});
-</script>
 {include="footer"}

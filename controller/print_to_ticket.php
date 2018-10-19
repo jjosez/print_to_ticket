@@ -166,7 +166,7 @@ class print_to_ticket extends fbase_controller
         }
     }
 
-    private function loadCustomLines($documentType, $position)
+    public function loadCustomLines($documentType, $position)
     {
         return (new TicketCustomLines($documentType, $position))->getLines();
     }
