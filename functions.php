@@ -115,10 +115,10 @@ if (!function_exists('fs_print_job')) {
                 $print_job->tipo = $documentType;
             }
 
-            $print_job->texto .= $ticket->toString();
+            $print_job->texto .= $ticket->toString($open);
             $print_job->save();
 
-            return $ticket->toString($open);
+            //return $ticket->toString($open);
         }
     }
 }

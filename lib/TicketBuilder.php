@@ -85,9 +85,7 @@ class TicketBuilder
             foreach ($headerLines as $line) {
                 $this->addText($line, true, true);
             }
-        }
-        
-        $this->addLineBreak();
+        }               
     }
 
     protected function writeBodyBlock($document, $documentType)
