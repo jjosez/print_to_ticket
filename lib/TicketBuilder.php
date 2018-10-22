@@ -146,4 +146,11 @@ class TicketBuilder
         
         return $this->ticket;
     }
+
+    public function abrirCajon() : string
+    {
+        $this->openBox();
+        
+        return $this->ticket;
+    }
 }

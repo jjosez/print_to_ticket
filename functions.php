@@ -122,3 +122,26 @@ if (!function_exists('fs_print_job')) {
         }
     }
 }
+
+if (!function_exists('fs_abrir_cajon')) {
+    require_once 'plugins/print_to_ticket/lib/TicketBuilder.php';
+    /**
+     * Agrega un nuevo trabajo a la cola de impresion por tipo de documento.
+     */
+    function fs_terminal_abrir_cajon($terminal)
+    {  
+            $ticket = new TicketBuilder($terminal);
+            $documentType = 'cajon';
+
+            $print_job = (new ticket_print_job())->get_print_job($documentType);
+            if (!$print_job) {
+                $print_job = new ticket_print_job();
+                $print_job->tipo = $documentType;
+            }
+
+            $print_job->texto .= $ticket->abrirCajon();
+            $print_job->save();
+
+            //return $ticket->toString($open);
+    }
+}
