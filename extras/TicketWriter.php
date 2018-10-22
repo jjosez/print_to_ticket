@@ -184,7 +184,7 @@ trait TicketWriter
         } 
     }
 
-    public function openBox()
+    public function drawer()
     {
         if (!$this->sinComandos) {            
             $aux = explode('.', $this->comandoApertura);

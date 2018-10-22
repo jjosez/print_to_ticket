@@ -117,8 +117,6 @@ if (!function_exists('fs_print_job')) {
 
             $print_job->texto .= $ticket->toString($open);
             $print_job->save();
-
-            //return $ticket->toString($open);
         }
     }
 }
@@ -128,10 +126,10 @@ if (!function_exists('fs_abrir_cajon')) {
     /**
      * Agrega un nuevo trabajo a la cola de impresion por tipo de documento.
      */
-    function fs_terminal_abrir_cajon($terminal)
+    function fs_abrir_cajon($terminal)
     {  
             $ticket = new TicketBuilder($terminal);
-            $documentType = 'cajon';
+            $documentType = 'drawer';
 
             $print_job = (new ticket_print_job())->get_print_job($documentType);
             if (!$print_job) {
@@ -139,9 +137,7 @@ if (!function_exists('fs_abrir_cajon')) {
                 $print_job->tipo = $documentType;
             }
 
-            $print_job->texto .= $ticket->abrirCajon();
+            $print_job->texto = $ticket->openDrawer();
             $print_job->save();
-
-            //return $ticket->toString($open);
     }
 }

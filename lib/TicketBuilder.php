@@ -28,7 +28,6 @@ class TicketBuilder
         $this->comandoCorte = ($terminal->comandocorte) ? $terminal->comandocorte : '27.105';
         $this->comandoApertura = ($terminal->comandoapertura) ? $terminal->comandoapertura : '27.112.48';
         $this->sinComandos = $comandos;
-        $this->openBox = false;
     }
 
     public function setEmpresa($empresa)
@@ -133,7 +132,7 @@ class TicketBuilder
     public function toString($open = false) : string
     {
         if ($open) {
-            $this->openBox();
+            $this->drawer();
         }
         
         $this->writeCompanyBlock($this->empresa);
@@ -147,9 +146,9 @@ class TicketBuilder
         return $this->ticket;
     }
 
-    public function abrirCajon() : string
+    public function openDrawer() : string
     {
-        $this->openBox();
+        $this->drawer();
         
         return $this->ticket;
     }
