@@ -50,8 +50,7 @@ class print_to_ticket extends fbase_controller
         if ($this->settings['print_job_terminal'] != '') {
             $terminal = (new terminal_caja())->get($this->settings['print_job_terminal']);
         } else {
-            $this->new_advice('Es necesario seleccionar una terminal.');
-            return;
+            $this->new_message('Selecciona una terminal para poder imprimir.');
         }
 
         // $this->documentType = isset($_GET['tipo']) ?  $_GET['tipo'] : null; 
@@ -60,6 +59,12 @@ class print_to_ticket extends fbase_controller
 
         if ($documentType) {
             $this->template = 'print_screen';
+
+            if (!$terminal) {
+                $this->new_advice('No se ha podido imprimir, es necesario seleccionar una terminal.');
+                return;
+            }
+            
             switch ($documentType) {
                 case 'factura':
                     $document = (new factura_cliente())->get($_GET['id']);                    
