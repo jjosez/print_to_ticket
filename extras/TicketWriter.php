@@ -2,6 +2,7 @@
 /**
 * Clase pare imprimir tickets.
 */
+
 trait TicketWriter
 {   
     public function addText($text = '', $linebreake = TRUE, $center = FALSE)

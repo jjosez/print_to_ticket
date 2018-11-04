@@ -38,7 +38,7 @@ class ticket_print_job extends fs_model
             $this->texto = $data['texto'];
         } else {
             $this->id = null;
-            $this->tipocomprobante = 'albaran';
+            $this->tipo = 'albaran';
             $this->texto = '';
         }
     }

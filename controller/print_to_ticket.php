@@ -45,7 +45,8 @@ class print_to_ticket extends fbase_controller
         $this->headerLines = $this->loadCustomLines('general', 'header');
         $this->footerLines = $this->loadCustomLines('general', 'footer');
 
-        $this->terminales = (new terminal_caja())->all();       
+        $this->terminales = (new terminal_caja())->all();
+        $terminal = false;       
 
         if ($this->settings['print_job_terminal'] != '') {
             $terminal = (new terminal_caja())->get($this->settings['print_job_terminal']);
@@ -123,16 +124,20 @@ class print_to_ticket extends fbase_controller
                         . ' ' . $document->codigo;
 
         switch ($documentType) {
-            case 'factura':
-                $ticket = new TicketBuilderFactura($terminal);
+            case 'albaran':
+                $ticket = new ticket_builder_albaran($terminal);
                 break;
 
-            case 'albaran':
-                $ticket = new TicketBuilderAlbaran($terminal);
+            case 'factura':
+                $ticket = new ticket_builder_factura($terminal);
+                break;
+            
+            case 'pedido':
+                $ticket = new ticket_builder_pedido($terminal);
                 break;
 
             case 'servicio':
-                $ticket = new TicketBuilderServicio($terminal);
+                $ticket = new ticket_builder_servicio($terminal);
                 break;
             
             default:
@@ -140,20 +145,25 @@ class print_to_ticket extends fbase_controller
                 break;
         }
 
-        $ticket->setEmpresa($this->empresa);
-        $ticket->setDocumento($document, $documentType);
-        $ticket->setCostumHeaderLines($this->headerLines); 
-        $ticket->setCostumFooterLines($this->footerLines);      
-        $ticket->setFooterText($this->settings['print_job_text']);
+        if (isset($ticket)) {
 
-        $print_job = (new ticket_print_job())->get_print_job($documentType);
-        if (!$print_job) {
-            $print_job = new ticket_print_job();
-            $print_job->tipo = $documentType;
+            $ticket->setEmpresa($this->empresa);
+            $ticket->setDocumento($document, $documentType);
+            $ticket->setCostumHeaderLines($this->headerLines); 
+            $ticket->setCostumFooterLines($this->footerLines);      
+            $ticket->setFooterText($this->settings['print_job_text']);
+
+            $print_job = (new ticket_print_job())->get_print_job($documentType);
+            if (!$print_job) {
+                $print_job = new ticket_print_job();
+                $print_job->tipo = $documentType;
+            }
+
+            $print_job->texto .= $ticket->toString();
+            $print_job->save();
         }
 
-        $print_job->texto .= $ticket->toString();
-        $print_job->save();
+        
     }
 
     private function saveCustomLines($documentType, $position)
