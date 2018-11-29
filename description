@@ -7,3 +7,5 @@ Accesible desde:
 <li>Albaran &gt; Ticket</li>
 <li>Pedido &gt; Ticket</li>
 </ul>
+
+<p>Requisitos. PHP 7.0 o superior</p>

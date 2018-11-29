@@ -15,12 +15,6 @@
  */
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 
-require_once 'plugins/print_to_ticket/lib/TicketCustomLines.php';
-require_once 'plugins/print_to_ticket/lib/TicketBuilderAlbaran.php';
-require_once 'plugins/print_to_ticket/lib/TicketBuilderFactura.php';
-require_once 'plugins/print_to_ticket/lib/TicketBuilderPedido.php';
-require_once 'plugins/print_to_ticket/lib/TicketBuilderServicio.php';
-
 class print_to_ticket extends fbase_controller
 {
     public $mensaje;
@@ -183,7 +177,7 @@ class print_to_ticket extends fbase_controller
 
     public function loadCustomLines($documentType, $position)
     {
-        return (new TicketCustomLines($documentType, $position))->getLines();
+        return (new ticket_custom_line)->all_from_document($documentType, $position);
     }
 
     private function loadSettings()

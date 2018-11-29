@@ -36,12 +36,6 @@ if (!function_exists('remote_printer')) {
 }
 
 if (!function_exists('fs_print_job')) {
-    require_once 'plugins/print_to_ticket/lib/TicketCustomLines.php';
-    require_once 'plugins/print_to_ticket/lib/TicketBuilderAlbaran.php';
-    require_once 'plugins/print_to_ticket/lib/TicketBuilderFactura.php';
-    require_once 'plugins/print_to_ticket/lib/TicketBuilderPedido.php';
-    require_once 'plugins/print_to_ticket/lib/TicketBuilderServicio.php';
-
     /**
      * Agrega un nuevo trabajo a la cola de impresion por tipo de documento.
      */
@@ -75,19 +69,19 @@ if (!function_exists('fs_print_job')) {
         if ($document) {
             switch ($documentType) {
                 case 'albaran':
-                    $ticket = new TicketBuilderAlbaran($terminal);
+                    $ticket = new ticket_builder_albaran($terminal);
                     break;
 
                 case 'factura':
-                    $ticket = new TicketBuilderFactura($terminal);
+                    $ticket = new ticket_builder_factura($terminal);
                     break;
 
                 case 'pedido':
-                    $ticket = new TicketBuilderPedido($terminal);
+                    $ticket = new ticket_builder_pedido($terminal);
                     break;
 
                 case 'servicio':
-                    $ticket = new TicketBuilderServicio($terminal);
+                    $ticket = new ticket_builder_servicio($terminal);
                     break;
                 
                 default:
@@ -122,13 +116,12 @@ if (!function_exists('fs_print_job')) {
 }
 
 if (!function_exists('fs_abrir_cajon')) {
-    require_once 'plugins/print_to_ticket/lib/TicketBuilder.php';
     /**
-     * Agrega un nuevo trabajo a la cola de impresion por tipo de documento.
+     * Manda un comando para abrir cajon por medio de la impresora de tickets.
      */
     function fs_abrir_cajon($terminal)
     {  
-            $ticket = new TicketBuilder($terminal);
+            $ticket = new ticket_builder($terminal);
             $documentType = 'drawer';
 
             $print_job = (new ticket_print_job())->get_print_job($documentType);
