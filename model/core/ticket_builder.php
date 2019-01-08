@@ -17,7 +17,6 @@ class ticket_builder extends \fs_model
         $this->sinComandos = $comandos;
     }
 
-
     /**
      * Esta función sirve para eliminar los datos del objeto de la base de datos
      */

@@ -185,7 +185,7 @@ trait TicketWriter
         } 
     }
 
-    public function drawer()
+    public function openDrawer()
     {
         if (!$this->sinComandos) {            
             $aux = explode('.', $this->comandoApertura);
@@ -196,6 +196,7 @@ trait TicketWriter
 
                 $this->ticket .= "\n";
             }            
-        } 
+        }
+        return $this->ticket;
     }
 }

@@ -94,7 +94,6 @@ if (!function_exists('fs_print_job')) {
             $footerLines = $customLine->all_from_document($documentType, 'footer');
 
             $fsvar = new fs_var();
-            //$terminal = (new terminal_caja())->get($fsvar->simple_get('print_job_terminal'));
             $footerText = $fsvar->simple_get('print_job_text');
 
             $ticket->setEmpresa($empresa);
@@ -121,16 +120,16 @@ if (!function_exists('fs_abrir_cajon')) {
      */
     function fs_abrir_cajon($terminal)
     {  
-            $ticket = new ticket_builder($terminal);
-            $documentType = 'drawer';
+        $ticket = new ticket_builder($terminal);
+        $documentType = 'drawer';
 
-            $print_job = (new ticket_print_job())->get_print_job($documentType);
-            if (!$print_job) {
-                $print_job = new ticket_print_job();
-                $print_job->tipo = $documentType;
-            }
+        $print_job = (new ticket_print_job())->get_print_job($documentType);
+        if (!$print_job) {
+            $print_job = new ticket_print_job();
+            $print_job->tipo = $documentType;
+        }
 
-            $print_job->texto = $ticket->openDrawer();
-            $print_job->save();
+        $print_job->texto = $ticket->openDrawer();
+        $print_job->save();
     }
 }

@@ -122,7 +122,7 @@ trait TicketBuilderTrait
     public function toString($open = false) : string
     {
         if ($open) {
-            $this->drawer();
+            $this->openDrawer();
         }
         
         $this->writeCompanyBlock($this->empresa);
@@ -132,13 +132,6 @@ trait TicketBuilderTrait
 
         $this->addLineBreak(4);
         $this->paperCut();
-        
-        return $this->ticket;
-    }
-
-    public function openDrawer() : string
-    {
-        $this->drawer();
         
         return $this->ticket;
     }

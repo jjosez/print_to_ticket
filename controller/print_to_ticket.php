@@ -166,13 +166,38 @@ class print_to_ticket extends fbase_controller
         $action = filter_input(INPUT_POST, 'accion',FILTER_DEFAULT);
         $id = filter_input(INPUT_POST, 'id',FILTER_DEFAULT, FILTER_NULL_ON_FAILURE);
 
-        $customLines = new TicketCustomLines($documentType, $position);
+        $customLine = (new ticket_custom_line)->get($id);
 
-        if ($action == 'borrar') {
-            $customLines->deleteCustomLine($id);
+        if ($customLine) {
+            if ($action == 'borrar') {
+                if ($customLine->delete()) {
+                    $this->new_message('Linea borrada corrrectamente.');
+                } else {
+                    $this->new_error_msg('No se pudo eliminar la linea.');
+                }
+            } else {
+                $customLine->documento = $documentType;
+                $customLine->texto = $texto;
+                $customLine->posicion = $position;
+
+                $customLine->save();
+            }
         } else {
-            $customLines->saveCustomLine($texto, $id);
-        }
+            if ($action == 'guardar') {
+                $customLine = new ticket_custom_line();
+
+                $customLine->documento = $documentType;
+                $customLine->texto = $texto;
+                $customLine->posicion = $position;
+
+                if ($customLine->save()) {
+                    $this->new_message('Linea guardada corrrectamente.');
+                    return;
+                }
+
+                $this->new_error_msg('No se encontro la linea.');
+            }
+        }        
     }
 
     public function loadCustomLines($documentType, $position)
