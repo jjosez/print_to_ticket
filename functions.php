@@ -92,6 +92,12 @@ if (!function_exists('fs_print_job')) {
             $customLine = new ticket_custom_line();
             $headerLines = $customLine->all_from_document($documentType, 'header');
             $footerLines = $customLine->all_from_document($documentType, 'footer');
+            
+            $commonCustomLines = $customLine->all_from_document('general', 'header');
+            $headerLines = array_merge($headerLines, $commonCustomLines);
+
+            $commonCustomLines = $customLine->all_from_document('general', 'footer');
+            $footerLines = array_merge($footerLines, $commonCustomLines);
 
             $fsvar = new fs_var();
             $footerText = $fsvar->simple_get('print_job_text');

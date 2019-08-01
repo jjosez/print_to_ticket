@@ -155,9 +155,7 @@ class print_to_ticket extends fbase_controller
 
             $print_job->texto .= $ticket->toString();
             $print_job->save();
-        }
-
-        
+        }        
     }
 
     private function saveCustomLines($documentType, $position)
